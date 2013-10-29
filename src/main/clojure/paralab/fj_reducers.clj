@@ -40,13 +40,6 @@
  (do
    (def pool (delay (java.util.concurrent.ForkJoinPool.)))
 
-   (comment
-   (defn create-fjpool
-     ([]
-        (java.util.concurrent.ForkJoinPool.))
-     ([ n-cpus ]
-        (java.util.concurrent.ForkJoinPool. n-cpus))))
-
    (defn fjtask [^Callable f]
      (java.util.concurrent.ForkJoinTask/adapt f))
 
@@ -72,13 +65,6 @@
  (do
    (def pool (delay (jsr166y.ForkJoinPool.)))
  
-   (comment
-   (defn create-fjpool
-     ([]
-        (jsr166y.ForkJoinPool.))
-     ([ n-cpus ]
-        (jsr166y.ForkJoinPool. n-cpus))))
-
    (defn fjtask [^Callable f]
      (jsr166y.ForkJoinTask/adapt f))
 

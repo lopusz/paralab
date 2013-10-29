@@ -1,4 +1,5 @@
-;   Copyright (c) Rich Hickey. All rights reserved.
+;   Copyright (c) Rich Hickey. All rights reserved.  Modified by lopusz.
+ 
 ;   The use and distribution terms for this software are covered by the
 ;   Eclipse Public License 1.0 (http://opensource.org/licenses/eclipse-1.0.php)
 ;   which can be found in the file epl-v10.html at the root of this distribution.
@@ -6,16 +7,14 @@
 ;   the terms of this license.
 ;   You must not remove this notice, or any other, from this software.
 
-(ns ^{:doc
-      "A library for reduction and parallel folding. Alpha and subject
-      to change.  Note that fold and its derivatives require Java 7+ or
-      Java 6 + jsr166y.jar for fork/join support. See Clojure's pom.xml for the
-      dependency info."
-      :author "Rich Hickey"}
-  paralab.reducers
+(ns  paralab.fj-reducers
+  "Reducers library modified in a way so fold accepts a custom fjpool.
+   Based on the code of Rich Hickey."
   (:refer-clojure :exclude 
         [reduce map mapcat filter remove take take-while drop flatten])
-  (:require [clojure.walk :as walk]))
+  (:require [clojure.walk :as walk])
+  (:require [paralab.fj-tasks :refer :all])
+  (:import [ paralab.fj_tasks FJPool]))
 
 (alias 'core 'clojure.core)
 (set! *warn-on-reflection* true)
@@ -41,11 +40,12 @@
  (do
    (def pool (delay (java.util.concurrent.ForkJoinPool.)))
 
+   (comment
    (defn create-fjpool
      ([]
         (java.util.concurrent.ForkJoinPool.))
      ([ n-cpus ]
-        (java.util.concurrent.ForkJoinPool. n-cpus)))
+        (java.util.concurrent.ForkJoinPool. n-cpus))))
 
    (defn fjtask [^Callable f]
      (java.util.concurrent.ForkJoinTask/adapt f))
@@ -71,12 +71,13 @@
  ;; We're running a JDK <7
  (do
    (def pool (delay (jsr166y.ForkJoinPool.)))
-   
+ 
+   (comment
    (defn create-fjpool
      ([]
         (jsr166y.ForkJoinPool.))
      ([ n-cpus ]
-        (jsr166y.ForkJoinPool. n-cpus)))
+        (jsr166y.ForkJoinPool. n-cpus))))
 
    (defn fjtask [^Callable f]
      (jsr166y.ForkJoinTask/adapt f))
@@ -141,10 +142,12 @@
   operations may be performed in parallel, but the results will
   preserve order."
   {:added "1.5"}
-  ([fjpool reducef coll ] (fold-p fjpool reducef reducef coll))
-  ([fjpool combinef reducef coll] (fold-p fjpool 512 combinef reducef coll))
-  ([fjpool n combinef reducef coll]
-     (coll-fold-p coll fjpool n combinef reducef)))
+  ([ ^FJPool fjpool reducef coll ] 
+     (fold-p fjpool reducef reducef coll))
+  ([ ^FJPool fjpool combinef reducef coll] 
+     (fold-p fjpool 512 combinef reducef coll))
+  ([ ^FJPool fjpool n combinef reducef coll]
+     (coll-fold-p coll (.getRawFJPool fjpool) n combinef reducef)))
 
 (defn reducer
   "Given a reducible collection, and a transformation function xf,
@@ -176,7 +179,9 @@
 
       CollFold
       (coll-fold [_ n combinef reducef]
-                 (coll-fold coll n combinef (xf reducef))))))
+                 (coll-fold coll n combinef (xf reducef)))
+      (coll-fold-p [_  fjpool n combinef reducef]
+                 (coll-fold-p coll fjpool n combinef (xf reducef))))))
 
 (defn- do-curried
   [name doc meta args body]
@@ -308,64 +313,6 @@
               (f1 ret k v)
               ret)))))))
 
-;;do not construct this directly, use cat
-(deftype Cat [cnt left right]
-  clojure.lang.Counted
-  (count [_] cnt)
-
-  clojure.lang.Seqable
-  (seq [_] (concat (seq left) (seq right)))
-
-  clojure.core.protocols/CollReduce
-  (coll-reduce [this f1] (clojure.core.protocols/coll-reduce this f1 (f1)))
-  (coll-reduce
-   [_  f1 init]
-   (clojure.core.protocols/coll-reduce
-    right f1
-    (clojure.core.protocols/coll-reduce left f1 init)))
-
-  CollFold
-  (coll-fold
-   [_ n combinef reducef]
-   (fjinvoke
-    (fn []
-      (let [rt (fjfork (fjtask #(coll-fold right n combinef reducef)))]
-        (combinef
-         (coll-fold left n combinef reducef)
-         (fjjoin rt)))))))
-
-(defn cat
-  "A high-performance combining fn that yields the catenation of the
-  reduced values. The result is reducible, foldable, seqable and
-  counted, providing the identity collections are reducible, seqable
-  and counted. The single argument version will build a combining fn
-  with the supplied identity constructor. Tests for identity
-  with (zero? (count x)). See also foldcat."
-  {:added "1.5"}
-  ([] (java.util.ArrayList.))
-  ([ctor]
-     (fn
-       ([] (ctor))
-       ([left right] (cat left right))))
-  ([left right]
-     (cond
-      (zero? (count left)) right
-      (zero? (count right)) left
-      :else
-      (Cat. (+ (count left) (count right)) left right))))
-
-(defn append!
-  ".adds x to acc and returns acc"
-  {:added "1.5"}
-  [^java.util.Collection acc x]
-  (doto acc (.add x)))
-
-(defn foldcat
-  "Equivalent to (fold cat append! coll)"
-  {:added "1.5"}
-  [coll]
-  (fold cat append! coll))
-
 (defn monoid
   "Builds a combining fn out of the supplied operator and identity
   constructor. op must be associative and ctor called with no args
@@ -438,7 +385,7 @@
   (foldvec v n combinef reducef))
  (coll-fold-p
   [v fjpool n combinef reducef]
-  (println "P-Folding vector !!!") 
+  ;;(println "P-Folding vector !!!") 
   (foldvec-p v fjpool n combinef reducef))
 
  clojure.lang.PersistentHashMap
@@ -448,3 +395,12 @@
   (coll-fold-p
     [m fjpool n combinef reducef]
     (.fold m n combinef reducef #(fjinvoke fjpool %) fjtask fjfork fjjoin)))
+
+(defn fold-into-vec-p 
+  "Provided a reducer, concatenate into a vector.
+   Note: same as (into [] coll), but parallel.
+   Adopted from excellent blog post of The Busby
+   http://www.thebusby.com/2012/07/tips-tricks-with-clojure-reducers.html
+   "
+  [fjpool coll]
+  (fold-p fjpool (monoid into vector) conj coll))

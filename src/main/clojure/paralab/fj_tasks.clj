@@ -1,4 +1,4 @@
-(ns paralab.fj
+(ns paralab.fj-tasks
 
   " Simple Clojure interface to ForkJoin task pool.
 
@@ -57,7 +57,8 @@
   (shutdown [this])
   (submit [this task])
   (invoke [this task])
-  (execute [this task]))
+  (execute [this task])
+  (getRawFJPool [this])) ;; ugliness for fj-reducers
 
 (deftype FJPool [^ForkJoinPool fjp]
   IFJPool
@@ -73,7 +74,9 @@
   (execute [this task]
            (let [^FJTask task task]
              (.execute fjp  
-               ^RecursiveTask (.task task)))))
+               ^RecursiveTask (.task task))))
+  (getRawFJPool [ this ] 
+    (.fjp this))) ;; ugliness for fj-reducers
 
 (defn split-vector [ v ]
   (let [
@@ -81,33 +84,33 @@
        ]
     [ (subvec v 0 half) (subvec v half) ]))
 
-(defn ^FJPool fjpool
+(defn ^FJPool create-fjpool
   ([]
      (FJPool. (ForkJoinPool.)))
   ([ n-cpus ]
      (FJPool. (ForkJoinPool. n-cpus))))
 
 (defn fj-run
-  [ fj-job ]
+  [ fj-task ]
   
-  (assert #(contains? fj-job :size-threshold)) 
-  (assert #(contains? fj-job :size-f)) 
-  (assert #(contains? fj-job :split-f)) 
-  (assert #(contains? fj-job :process-f)) 
+  (assert #(contains? fj-task :size-threshold)) 
+  (assert #(contains? fj-task :size-f)) 
+  (assert #(contains? fj-task :split-f)) 
+  (assert #(contains? fj-task :process-f)) 
   (assert #(contains? :merge-f))
   (assert #(contains? :data))
 
   (let [
         {:keys [ size-threshold size-f
-                 split-f process-f merge-f data ] } fj-job 
+                 split-f process-f merge-f data ] } fj-task 
       ]
     (if (> (size-f data) size-threshold)
       (let [
           [data1 data2] (split-f data)
-          fj-job1 (merge fj-job {:data data1}) 
-          fj-job2 (merge fj-job {:data data2})
-          f-res1 (fork (task (fj-run fj-job1)))
-          res2 (run (task (fj-run fj-job2)))
+          fj-task1 (merge fj-task {:data data1}) 
+          fj-task2 (merge fj-task {:data data2})
+          f-res1 (fork (task (fj-run fj-task1)))
+          res2 (run (task (fj-run fj-task2)))
           ]
         (merge-f (join f-res1) res2))  
         (process-f data))))
@@ -120,76 +123,76 @@
    There is no need for merge-f function required by ordinary fj-run.
    Doing non-blocking I/O is against the rules of fork-join and can result
    in suboptimal performance."
-  [ fj-job ]
+  [ fj-task ]
 
-  (assert #(contains? fj-job :size-threshold)) 
-  (assert #(contains? fj-job :size-f)) 
-  (assert #(contains? fj-job :split-f)) 
-  (assert #(contains? fj-job :process-f)) 
+  (assert #(contains? fj-task :size-threshold)) 
+  (assert #(contains? fj-task :size-f)) 
+  (assert #(contains? fj-task :split-f)) 
+  (assert #(contains? fj-task :process-f)) 
   (assert #(contains? :merge-f))
   (assert #(contains? :data))
 
   (let [
         {:keys [ size-threshold size-f
-                 split-f process-f data ] } fj-job 
+                 split-f process-f data ] } fj-task 
       ]
     (if (> (size-f data) size-threshold)
       (let [
           [data1 data2] (split-f data)
-          fj-job1 (merge fj-job {:data data1}) 
-          fj-job2 (merge fj-job {:data data2})
-          f-res1 (fork (task (fj-run! fj-job1)))
-          res2 (run  (task (fj-run! fj-job2)))
+          fj-task1 (merge fj-task {:data data1}) 
+          fj-task2 (merge fj-task {:data data2})
+          f-res1 (fork (task (fj-run! fj-task1)))
+          res2 (run  (task (fj-run! fj-task2)))
           ]
         (join f-res1))  
       (process-f data))))
 
 (defn fj-run-serial
-  [ fj-job ]
+  [ fj-task ]
 
-  (assert #(contains? fj-job :size-threshold))
-  (assert #(contains? fj-job :size-f)) 
-  (assert #(contains? fj-job :split-f)) 
-  (assert #(contains? fj-job :process-f)) 
+  (assert #(contains? fj-task :size-threshold))
+  (assert #(contains? fj-task :size-f)) 
+  (assert #(contains? fj-task :split-f)) 
+  (assert #(contains? fj-task :process-f)) 
   (assert #(contains? :merge-f))
   (assert #(contains? :data))
 
   (let [
         {:keys [ size-threshold size-f
-                 split-f process-f merge-f data ] } fj-job 
+                 split-f process-f merge-f data ] } fj-task 
       ]
       (if (> (size-f data) size-threshold)
         (let [
               [data1 data2] (split-f data)
-              fj-job1 (merge fj-job {:data data1}) 
-              fj-job2 (merge fj-job {:data data2})
-              res1 (fj-run-serial fj-job1)
-              res2 (fj-run-serial fj-job2)
+              fj-task1 (merge fj-task {:data data1}) 
+              fj-task2 (merge fj-task {:data data2})
+              res1 (fj-run-serial fj-task1)
+              res2 (fj-run-serial fj-task2)
              ]          
           (merge-f res1 res2))
         (process-f data))))
 
 (defn fj-run-serial!
-  [ fj-job ]
+  [ fj-task ]
 
-  (assert #(contains? fj-job :size-threshold))
-  (assert #(contains? fj-job :size-f)) 
-  (assert #(contains? fj-job :split-f)) 
-  (assert #(contains? fj-job :process-f)) 
+  (assert #(contains? fj-task :size-threshold))
+  (assert #(contains? fj-task :size-f)) 
+  (assert #(contains? fj-task :split-f)) 
+  (assert #(contains? fj-task :process-f)) 
   (assert #(contains? :merge-f))
   (assert #(contains? :data))
 
   (let [
         {:keys [ size-threshold size-f
-                 split-f process-f merge-f data ] } fj-job 
+                 split-f process-f merge-f data ] } fj-task 
       ]
       (if (> (size-f data) size-threshold)
         (let [
               [data1 data2] (split-f data)
-              fj-job1 (merge fj-job {:data data1}) 
-              fj-job2 (merge fj-job {:data data2})
-              res1 (fj-run-serial! fj-job1)
-              res2 (fj-run-serial! fj-job2)
+              fj-task1 (merge fj-task {:data data1}) 
+              fj-task2 (merge fj-task {:data data2})
+              res1 (fj-run-serial! fj-task1)
+              res2 (fj-run-serial! fj-task2)
              ]          
           res2)
         (process-f data))))

@@ -14,7 +14,9 @@
   :jvm-opts ["-ea"]
   ;;; hints on java code, sometimes maybe useful  
   ;;; :javac-options [ "-Xlint"]
-  
+
+  :main paralab.benchmarks
+
   ; DEPENDENCIES
 
   :dependencies [   

@@ -356,22 +356,18 @@
  (coll-fold
   [coll n combinef reducef]
   ;;can't fold, single reduce
-  (println "SORRY! Not folding, just reducing :(((") 
   (reduce reducef (combinef) coll))
  (coll-fold-p
   [coll fjpool n combinef reducef]
   ;;can't fold, single reduce
-  (println "SORRY! Not folding, just reducing :(((") 
   (reduce reducef (combinef) coll))
 
  clojure.lang.IPersistentVector
  (coll-fold
   [v n combinef reducef]
-  ;;(println "Folding vector !!!") 
   (foldvec v n combinef reducef))
  (coll-fold-p
   [v fjpool n combinef reducef]
-  ;;(println "P-Folding vector !!!") 
   (foldvec-p v fjpool n combinef reducef))
 
  clojure.lang.PersistentHashMap

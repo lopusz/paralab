@@ -15,15 +15,12 @@
   ;;; hints on java code, sometimes maybe useful  
   ;;; :javac-options [ "-Xlint"]
 
-  :main paralab.benchmarks
-
   ; DEPENDENCIES
 
   :dependencies [   
     [org.clojure/clojure "1.5.1"]
     [pjstadig/assertions "0.1.0"]
     [org.clojure/math.numeric-tower "0.0.2"]
-    [criterium "0.4.2"]
     ]
 
   ; SOURCE DIRECTORY RECONFIGURATION
@@ -42,7 +39,7 @@
           :output-dir "target/apidoc"
           :sources [ "src/main/clojure"]
           ;; TODO Uncoment below before push to github
-          ;; :src-dir-uri "http://github.com/lopusz/langlab/blob/master/"
+          ;; :src-dir-uri "http://github.com/lopusz/paralab/blob/master/"
           ;; :src-linenum-anchor-prefix "L"
           }  
 )

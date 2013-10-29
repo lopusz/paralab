@@ -1,10 +1,13 @@
 * Task List
-
 ** :fj_reducers: test its usability
-** :fj_reducers: if test go ok, clean it thoroghly 
+** :fj_reducers: if reducers are usable, clean thoroughly the code 
 ** :fj_reducers: target is to be able to clean vectors, jarrays, and maps (?) 
-** :fj_tasks: clean up and make minimal visible interface
+** :fj_reducers: convert fj-task to defrecord (?)
 ** :fj_tasks: write api docs
 ** :fj_tasks: write fj_task based pmap (?)
-
+** :fj_tasks:fj_reducers: extract all fj the dependencies to separate ns
+** :bechmarks: move it to the separate project, get rid of criterium dep.
 * Done
+** :fj_reducers: write tests
+** :fj_tasks: clean up and make minimal visible interface
+** :fj_tasks: write tests

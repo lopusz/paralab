@@ -24,7 +24,7 @@
     `(do ~then)
     `(do ~else)))
 
-(compile-if 
+(compile-if
   (Class/forName "java.util.concurrent.ForkJoinTask")
   (import '(java.util.concurrent RecursiveTask ForkJoinPool))
   (import '(jsr166y RecursiveTask ForkJoinPool)))
@@ -65,20 +65,20 @@
   (shutdown [this] (.shutdown this))
   (submit [this task]
           (let [^FJTask task task]
-            (.submit fjp 
+            (.submit fjp
               ^RecursiveTask (.task task))))
   (invoke [this task]
           (let [^FJTask task task]
-            (.invoke fjp 
+            (.invoke fjp
               ^RecursiveTask (.task task))))
   (execute [this task]
            (let [^FJTask task task]
-             (.execute fjp  
+             (.execute fjp
                ^RecursiveTask (.task task))))
-  (getRawFJPool [ this ] 
+  (getRawFJPool [ this ]
     (.fjp this))) ;; ugliness for fj-reducers
 
-(defn split-vector [ v ]
+(defn split-vector-halves [ v ]
   (let [
        half (quot (count v) 2)
        ]
@@ -94,64 +94,77 @@
 
 (defn- priv-fj-run
   [ fjtask ]
-  
+
   (let [
         {:keys [ size-threshold size-f
-                 split-f process-f merge-f data ] } fjtask 
+                 split-f process-f merge-f data ] } fjtask
       ]
     (if (> (size-f data) size-threshold)
       (let [
           [data1 data2] (split-f data)
-          fj-task1 (merge fjtask {:data data1}) 
+          fj-task1 (merge fjtask {:data data1})
           fj-task2 (merge fjtask {:data data2})
           f-res1 (fork (task (priv-fj-run fj-task1)))
           res2 (run (task (priv-fj-run fj-task2)))
           ]
-        (merge-f (join f-res1) res2))  
+        (merge-f (join f-res1) res2))
         (process-f data))))
 
+(defn make-vec-fjtask [ fjtask ]
+  (assert (contains? fjtask :data))
+  (assert (contains? fjtask :process-f))
+  (assert (contains? fjtask :merge-f))
+
+  (let [
+         vector-fjtask {
+                    :size-threshold 1
+                    :size-f count
+                    :split-f split-vector-halves }
+        ]
+    (merge vector-fjtask fjtask)))
+
 (defn fj-run [ fjpool fjtask ]
-  (assert #(contains? fjtask :size-threshold)) 
-  (assert #(contains? fjtask :size-f)) 
-  (assert #(contains? fjtask :split-f)) 
-  (assert #(contains? fjtask :process-f)) 
-  (assert #(contains? fjtask :merge-f))
-  (assert #(contains? fjtask :data))
+  (assert (contains? fjtask :size-threshold))
+  (assert (contains? fjtask :size-f))
+  (assert (contains? fjtask :split-f))
+  (assert (contains? fjtask :process-f))
+  (assert (contains? fjtask :merge-f))
+  (assert (contains? fjtask :data))
   (invoke fjpool (task (priv-fj-run fjtask))))
 
 (defn- priv-fj-run!
   [ fjtask ]
   (let [
         {:keys [ size-threshold size-f
-                 split-f process-f data ] } fjtask 
+                 split-f process-f data ] } fjtask
       ]
     (if (> (size-f data) size-threshold)
       (let [
           [data1 data2] (split-f data)
-          fj-task1 (merge fjtask {:data data1}) 
+          fj-task1 (merge fjtask {:data data1})
           fj-task2 (merge fjtask {:data data2})
           f-res1 (fork (task (priv-fj-run! fj-task1)))
           res2 (run (task (priv-fj-run! fj-task2)))
           ]
         (join f-res1)
-        nil)  
+        nil)
       (do (process-f data) nil))))
 
 (defn fj-run!
   "Used to run fjtasks for side effects only.
    The only results are written to the output by process-f.
-   Any results returned by process-f are discarded, preferably it should 
+   Any results returned by process-f are discarded, preferably it should
    return  nil.
    There is no need for merge-f function required by ordinary fj-run.
    Doing non-blocking I/O is against the rules of fork-join and can result
    in suboptimal performance."
   [ fjpool fjtask ]
 
-  (assert #(contains? fjtask :size-threshold)) 
-  (assert #(contains? fjtask :size-f)) 
-  (assert #(contains? fjtask :split-f)) 
-  (assert #(contains? fjtask :process-f)) 
-  (assert #(contains? fjtask :data))
+  (assert (contains? fjtask :size-threshold))
+  (assert (contains? fjtask :size-f))
+  (assert (contains? fjtask :split-f))
+  (assert (contains? fjtask :process-f))
+  (assert (contains? fjtask :data))
 
   (invoke fjpool (task (priv-fj-run! fjtask))))
 
@@ -159,53 +172,53 @@
   [ fjtask ]
   (let [
          {:keys [ size-threshold size-f
-                  split-f process-f merge-f data ] } fjtask 
+                  split-f process-f merge-f data ] } fjtask
        ]
        (if (> (size-f data) size-threshold)
          (let [
                [data1 data2] (split-f data)
-               fj-task1 (merge fjtask {:data data1}) 
+               fj-task1 (merge fjtask {:data data1})
                fj-task2 (merge fjtask {:data data2})
                res1 (priv-fj-run-serial fj-task1)
                res2 (priv-fj-run-serial fj-task2)
-              ]          
+              ]
            (merge-f res1 res2))
          (process-f data))))
 
-(defn fj-run-serial 
+(defn fj-run-serial
   [ fjtask ]
-  (assert #(contains? fjtask :size-threshold))
-  (assert #(contains? fjtask :size-f)) 
-  (assert #(contains? fjtask :split-f)) 
-  (assert #(contains? fjtask :process-f)) 
-  (assert #(contains? fjtask :merge-f))
-  (assert #(contains? fjtask :data))
+  (assert (contains? fjtask :size-threshold))
+  (assert (contains? fjtask :size-f))
+  (assert (contains? fjtask :split-f))
+  (assert (contains? fjtask :process-f))
+  (assert (contains? fjtask :merge-f))
+  (assert (contains? fjtask :data))
   (priv-fj-run-serial fjtask))
 
 (defn- priv-fj-run-serial!
   [ fjtask ]
   (let [
         {:keys [ size-threshold size-f
-                 split-f process-f merge-f data ] } fjtask 
+                 split-f process-f merge-f data ] } fjtask
       ]
       (if (> (size-f data) size-threshold)
         (let [
               [data1 data2] (split-f data)
-              fj-task1 (merge fjtask {:data data1}) 
+              fj-task1 (merge fjtask {:data data1})
               fj-task2 (merge fjtask {:data data2})
               res1 (priv-fj-run-serial! fj-task1)
               res2 (priv-fj-run-serial! fj-task2)
-             ]          
+             ]
           nil)
-        (do 
+        (do
           (process-f data)
           nil))))
 
 (defn fj-run-serial!
   [ fjtask ]
-  (assert #(contains? fjtask :size-threshold))
-  (assert #(contains? fjtask :size-f)) 
-  (assert #(contains? fjtask :split-f)) 
-  (assert #(contains? fjtask :process-f)) 
-  (assert #(contains? fjtask :data))
+  (assert (contains? fjtask :size-threshold))
+  (assert (contains? fjtask :size-f))
+  (assert (contains? fjtask :split-f))
+  (assert (contains? fjtask :process-f))
+  (assert (contains? fjtask :data))
   (priv-fj-run-serial! fjtask))

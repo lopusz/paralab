@@ -8,7 +8,7 @@
         fjtask {
                   :size-threshold 5 
                   :size-f count
-                  :split-f split-vector
+                  :split-f split-vector-halves
                   :process-f  #(reduce + %)
                   :merge-f #(+ %1 %2)
                   :data (into [] (range 1 100001))
@@ -26,7 +26,7 @@
           fjtask {
                   :size-threshold 5 
                   :size-f count
-                  :split-f split-vector
+                  :split-f split-vector-halves
                   :process-f
                      #(swap! counter 
                            +  (reduce + %))

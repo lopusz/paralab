@@ -4,7 +4,7 @@
 
 (deftest fj-run-test
   (let [
-        fjpool (create-fjpool) 
+        fjpool (make-fjpool) 
         fjtask {
                   :size-threshold 5 
                   :size-f count
@@ -22,7 +22,7 @@
 (deftest fj-run!-test
   (let [
           counter (atom 0)
-          fjpool (create-fjpool) 
+          fjpool (make-fjpool) 
           fjtask {
                   :size-threshold 5 
                   :size-f count

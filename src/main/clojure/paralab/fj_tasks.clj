@@ -84,7 +84,7 @@
        ]
     [ (subvec v 0 half) (subvec v half) ]))
 
-(defn ^FJPool create-fjpool
+(defn ^FJPool make-fjpool
   "Creates fork-join theradpool with a specified number of threads.
    If no argument is given it creates number of threads equal to #cpus."
   ([]

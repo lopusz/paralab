@@ -1,12 +1,12 @@
 (ns paralab.fj-reducers-test
     (:require 
             [clojure.test :refer :all]
-            [paralab.fj-tasks :refer [create-fjpool]]
+            [paralab.fj-tasks :refer [make-fjpool]]
             [paralab.fj-reducers :as fjr]))
 
 (deftest fj-reduce-test
   (let [
-        fjpool (create-fjpool)
+        fjpool (make-fjpool)
         data (into [] (range 1 100001))
         res* (reduce + (filter odd? (map #(* 2 %) data)))
         res (fjr/fold-p fjpool 
@@ -17,7 +17,7 @@
 
 (deftest fj-fold-into-vec-test
   (let [
-        fjpool (create-fjpool)
+        fjpool (make-fjpool)
         res* (into [] (range 4 1000 4))
         data (into [] (range 1 500))
         res  (fjr/fold-into-vec-p

@@ -75,7 +75,7 @@
   (getRawFJPool [ this ]
     (.fjp this))) ;; ugliness for fj-reducers
 
-(defn ^FJPool make-fjpool
+(defn ^FJPool make-fj-pool
   "Creates fork-join thread pool with a specified number of threads.
    If no argument is given it creates number of threads equal to #cpus."
   ([]

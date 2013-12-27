@@ -1,11 +1,15 @@
 * Issues
+  + *[general]* clean API - fj-name vs. fjname
+  + *[general]* rename defprotocol join so it does not collide with string join
+  + *[general]* add spellchecking module
   + *[fj_reducers]* test its usability
-  + *[fj_reducers]* if reducers are usable, clean thoroughly the code 
-  + *[fj_reducers]* target is to be able to clean vectors, jarrays, and maps (?) 
-  + *[fj_reducers]* convert fj-task to defrecord (?)
+  + *[fj_reducers]* if reducers are usable, clean thoroughly the code
+    Ttarget is to be able to scale operations on vectors, jarrays, and maps (?) 
+  + *[fj_task]* convert fj-task to defrecord (?)
   + *[fj_tasks]* write api docs
   + *[fj_tasks]* write fj_task based pmap (?)
   + *[fj_tasks][fj_reducers]* extract all fj the dependencies to separate ns
+
 * Done
   + *[bechmarks]* move it to the separate project, get rid of criterium dep.
   + *[fj_reducers]* write tests

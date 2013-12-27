@@ -1,11 +1,9 @@
-# paralab
+* paralab
 
-A Clojure library designed to ... well, that part is up to you.
+Toolbox for painless parallelism in Clojure.
 
-## Usage
+Currently, this is work in progress. API is subject to change.
 
-FIXME
-
-## License
+* License
 
 Distributed under the Eclipse Public License, the same as Clojure.

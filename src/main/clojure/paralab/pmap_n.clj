@@ -4,7 +4,7 @@
 (defn pmap-n
   "Runs pmap spawning n futures.
    
-   Orginal pmap is recovered by pmap with n = available processors + 2.
+   Original pmap is recovered by pmap with n = available processors + 2.
   "
 
   ([ n f coll ]

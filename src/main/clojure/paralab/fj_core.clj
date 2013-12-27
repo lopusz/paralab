@@ -31,16 +31,16 @@
 ;; Helpers to provide an idiomatic interface to FJ
 
 (defprotocol IFJTask
-  (fork [this])
-  (join [this])
-  (run [this])
+  (forkTask [this])
+  (joinTask [this])
+  (runTask [this])
   (compute [this]))
 
 (deftype FJTask [^RecursiveTask task]
   IFJTask
-  (fork [_] (FJTask. (.fork task)))
-  (join [_] (.join task))
-  (run [_] (.invoke task))
+  (forkTask [_] (FJTask. (.fork task)))
+  (joinTask [_] (.join task))
+  (runTask [_] (.invoke task))
   (compute [_] (.compute task)))
 
 (defn ^FJTask task* [f]

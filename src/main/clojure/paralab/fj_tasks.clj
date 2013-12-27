@@ -30,10 +30,10 @@
           [data1 data2] (split-f data)
           fj-task1 (merge fj-task {:data data1})
           fj-task2 (merge fj-task {:data data2})
-          f-res1 (fork (task (priv-fj-run fj-task1)))
-          res2 (run (task (priv-fj-run fj-task2)))
+          f-res1 (forkTask (task (priv-fj-run fj-task1)))
+          res2 (runTask (task (priv-fj-run fj-task2)))
           ]
-        (merge-f (join f-res1) res2))
+        (merge-f (joinTask f-res1) res2))
         (process-f data))))
 
 (defn make-vec-fj-task [ fj-task ]
@@ -69,10 +69,10 @@
           [data1 data2] (split-f data)
           fj-task1 (merge fj-task {:data data1})
           fj-task2 (merge fj-task {:data data2})
-          f-res1 (fork (task (priv-fj-run! fj-task1)))
-          res2 (run (task (priv-fj-run! fj-task2)))
+          f-res1 (forkTask (task (priv-fj-run! fj-task1)))
+          res2 (runTask (task (priv-fj-run! fj-task2)))
           ]
-        (join f-res1)
+        (joinTask f-res1)
         nil)
       (do (process-f data) nil))))
 

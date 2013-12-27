@@ -1,8 +1,8 @@
 (ns paralab.fj-reducers-test
-    (:require 
-            [clojure.test :refer :all]
-            [paralab.fj-tasks :refer [make-fjpool]]
-            [paralab.fj-reducers :as fjr]))
+  (:require 
+    [clojure.test :refer :all]
+    [paralab.fj-core :refer [make-fjpool]]
+    [paralab.fj-reducers :as fjr]))
 
 (deftest fj-reduce-test
   (let [

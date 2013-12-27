@@ -13,8 +13,8 @@
   (:refer-clojure :exclude 
         [reduce map mapcat filter remove take take-while drop flatten])
   (:require [clojure.walk :as walk])
-  (:require [paralab.fj-tasks :refer :all])
-  (:import [ paralab.fj_tasks FJPool]))
+  (:require [paralab.fj-core :refer :all])
+  (:import [ paralab.fj_core FJPool]))
 
 (alias 'core 'clojure.core)
 (set! *warn-on-reflection* true)

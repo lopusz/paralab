@@ -1,5 +1,6 @@
 (ns paralab.fj-tasks-test
   (:require [clojure.test :refer :all]
+            [paralab.fj-core :refer [ make-fjpool ]]
             [paralab.fj-tasks :refer :all]))
 
 (deftest fj-run-test

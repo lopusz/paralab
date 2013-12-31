@@ -1,5 +1,5 @@
 * Issues
-  + *[general]* check if the copmpile-if trick really makes it work with J1.6
+  + *[general]* check if the compile-if trick really makes it work with J1.6
   + *[fj_reducers]* test its usability
   + *[fj_reducers]* if reducers are usable, clean thoroughly the code
     Target is to be able to scale operations on vectors, jarrays, and maps (?)

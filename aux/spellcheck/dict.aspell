@@ -5,14 +5,17 @@ Codox
 CollFold
 FJPool
 FJTask
+Fingerhut
 ForkJoin
 IFJPool
 IFJTask
 Namespaces
 Paralab
+PersistentVector
 af
 api
 args
+chunked
 colls
 combinef
 cpus
@@ -29,9 +32,11 @@ fjtask
 fjtasks
 fn
 foldable
+forkTask
 getRawFJPool
 init
 jarrays
+joinTask
 kv
 mapcat
 monoid
@@ -42,6 +47,7 @@ pmap
 ppmap
 pred
 reducef
+runTask
 swannodette
 vec
 vec

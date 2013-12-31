@@ -22,12 +22,12 @@
   "Creates `fj-task` on the basis of keyword arguments:
    `:data` - data to be processed,
    `:size-f` - function returning size of data chunk,
-   `:split-f` - function spliting data chunk
+   `:split-f` - function splitting data chunk
    `:process-f` - function processing chunk of data
    `:size-threshold` - maximum size of chunk processed by `process-f`
-   `:merge-f` - function merginng results of `process-f` ran on two chunks
+   `:merge-f` - function merging results of `process-f` ran on two chunks
 
-  `:merge-f` is optional. If you wish only to run for sideeffects
+  `:merge-f` is optional. If you wish only to run for side effects
    using run-fj-task! it should not be provided."
   [ & { :keys [size-threshold size-f split-f process-f data]
        :as fj-task}]
@@ -43,9 +43,9 @@
    `:data` - data to be processed of type `PersistentVector`,
    `:process-f` - function processing chunk of data
    `:size-threshold` - maximum size of chunk processed by `process-f`
-   `:merge-f` - function merginng results of `process-f` ran on two chunks
+   `:merge-f` - function merging results of `process-f` ran on two chunks
 
-  `:merge-f` is optional. If you wish only to run for sideeffects
+  `:merge-f` is optional. If you wish only to run for side effects
    using run-fj-task! it should not be provided."
 
   [ & {:keys [size-threshold process-f merge-f data] } ]
@@ -70,12 +70,12 @@
 
 (defn make-fj-task-map-reduce-vec
   "Creates `fj-task` executing in parallel map-reduce style computation
-   on data vector, which is equivallent to:
+   on data vector, which is equivalent to:
 
    `(reduce reduce-f (map map-f data))`
    Assumes that reduce-f is associative.
 
-   Uses the following keyword argumetns:
+   Uses the following keyword arguments:
    `:data` - data to be processed of type `PersistentVector`,
    `:map-f` - function processing chunk of data,
    `:reduce-f` - function reducing the data,

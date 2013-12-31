@@ -37,6 +37,7 @@
 
   :codox {
           :output-dir "target/apidoc"
+          :codox {:exclude paralab.fj-reducers}
           :sources [ "src/main/clojure"]
           ;; TODO Uncoment below before push to github
           ;; :src-dir-uri "http://github.com/lopusz/paralab/blob/master/"

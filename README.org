@@ -1,9 +1,11 @@
 * paralab
+  
+  Toolbox for painless parallelism in Clojure.
 
-Toolbox for painless parallelism in Clojure.
+  Currently, this is work in progress. API is subject to change.
 
-Currently, this is work in progress. API is subject to change.
+  API docs are available [[http://lopusz.github.io/paralab][here]].
 
 * License
 
-Distributed under the Eclipse Public License, the same as Clojure.
+  Distributed under the Eclipse Public License, the same as Clojure.

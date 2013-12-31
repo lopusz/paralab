@@ -4,7 +4,7 @@
     On the basis of gist from swannodette:
     https://gist.github.com/888733"
   (:refer-clojure :exclude [assert])
-  (:require 
+  (:require
     [pjstadig.assertions :refer [assert]]
     [paralab.fj-core :refer :all]))
 
@@ -17,6 +17,54 @@
        half (quot (count v) 2)
        ]
     [ (subvec v 0 half) (subvec v half) ]))
+
+(defn make-fj-task
+  [ & { :keys [size-threshold size-f split-f process-f data]
+       :as fj-task}]
+  (assert (contains? fj-task :size-threshold))
+  (assert (contains? fj-task :size-f))
+  (assert (contains? fj-task :split-f))
+  (assert (contains? fj-task :process-f))
+  (assert (contains? fj-task :data))
+  fj-task)
+
+(defn make-fj-task-vec
+  [ & {:keys [size-threshold process-f merge-f data]
+       :or { size-threshold 2 } } ]
+
+  (assert (not= process-f nil))
+  (assert (not= data nil))
+  (assert (= (class data) clojure.lang.PersistentVector))
+
+   (if (not= merge-f nil)
+     (make-fj-task :size-threshold size-threshold
+                   :size-f count
+                   :split-f split-vector-halves
+                   :process-f process-f
+                   :merge-f merge-f
+                   :data data)
+     (make-fj-task :size-threshold size-threshold
+                   :size-f count
+                   :split-f split-vector-halves
+                   :process-f process-f
+                   :data data)))
+
+(defn make-fj-task-map-reduce-vec
+  [ & { :keys [ map-f reduce-f data size-threshold ]
+      :or { size-threshold 2 } } ]
+
+  (assert (not= map-f nil))
+  (assert (not= reduce-f nil))
+  (assert (not= data nil))
+  (assert (= (class data) clojure.lang.PersistentVector))
+
+  (make-fj-task :size-threshold size-threshold
+                :size-f count
+                :split-f split-vector-halves
+                :process-f #(reduce reduce-f
+                               (map map-f %))
+                :merge-f reduce-f
+                :data data))
 
 (defn- priv-fj-run
   [ fj-task ]
@@ -36,20 +84,9 @@
         (merge-f (joinTask f-res1) res2))
         (process-f data))))
 
-(defn make-vec-fj-task [ fj-task ]
-  (assert (contains? fj-task :data))
-  (assert (contains? fj-task :process-f))
-  (assert (contains? fj-task :merge-f))
-
-  (let [
-         vector-fj-task {
-                    :size-threshold 1
-                    :size-f count
-                    :split-f split-vector-halves }
-        ]
-    (merge vector-fj-task fj-task)))
-
-(defn fj-run [ fj-pool fj-task ]
+(defn fj-run
+  "Run `fj-task` in a given `fj-pool`."
+  [ fj-pool fj-task ]
   (assert (contains? fj-task :size-threshold))
   (assert (contains? fj-task :size-f))
   (assert (contains? fj-task :split-f))
@@ -77,13 +114,13 @@
       (do (process-f data) nil))))
 
 (defn fj-run!
-  "Used to run fj-tasks for side effects only.
-   The only results are written to the output by process-f.
-   Any results returned by process-f are discarded, preferably it should
-   return  nil.
-   There is no need for merge-f function required by ordinary fj-run.
-   Doing blocking I/O is against the rules of fork-join and can result
-   in suboptimal performance."
+  "Run `fj-task` in a given `fj-pool` for side-effects only.
+
+   `fj-task` must not contain `merge-f` field.
+   Any results returned by `process-f` are discarded, preferably it should
+   return  `nil`. Too much blocking I/O is can result in suboptimal
+   performance, since Fork/Join is designed to CPU intensive tasks."
+
   [ fj-pool fj-task ]
 
   (assert (contains? fj-task :size-threshold))
@@ -91,6 +128,7 @@
   (assert (contains? fj-task :split-f))
   (assert (contains? fj-task :process-f))
   (assert (contains? fj-task :data))
+  (assert (not (contains? fj-task :merge-f)))
 
   (invoke fj-pool (task (priv-fj-run! fj-task))))
 
@@ -141,7 +179,7 @@
           nil))))
 
 (defn fj-run-serial!
-  "Runs `fj-task` for sideffects only. Returns nil."
+  "Runs `fj-task` for side effects only. Returns nil."
   [ fj-task ]
   (assert (contains? fj-task :size-threshold))
   (assert (contains? fj-task :size-f))

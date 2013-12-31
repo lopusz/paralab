@@ -10,7 +10,7 @@
 
 ;; Java 1.6 vs. Java 1.7 compatibility trick from Reducers library
 
-(defn split-vector-halves
+(defn split-vec-halves
   "Splits vector `v` into two halves."
   [ v ]
   (let [
@@ -58,13 +58,13 @@
    (if (not= merge-f nil)
      (make-fj-task :size-threshold size-threshold
                    :size-f count
-                   :split-f split-vector-halves
+                   :split-f split-vec-halves
                    :process-f process-f
                    :merge-f merge-f
                    :data data)
      (make-fj-task :size-threshold size-threshold
                    :size-f count
-                   :split-f split-vector-halves
+                   :split-f split-vec-halves
                    :process-f process-f
                    :data data)))
 
@@ -94,7 +94,7 @@
 
   (make-fj-task :size-threshold size-threshold
                 :size-f count
-                :split-f split-vector-halves
+                :split-f split-vec-halves
                 :process-f #(reduce reduce-f
                                (map map-f %))
                 :merge-f reduce-f

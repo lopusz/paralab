@@ -66,7 +66,7 @@
                 :merge-f reduce-f
                 :data data))
 
-(defn- priv-fj-run
+(defn- priv-run-fj-task
   [ fj-task ]
 
   (let [
@@ -78,13 +78,13 @@
           [data1 data2] (split-f data)
           fj-task1 (merge fj-task {:data data1})
           fj-task2 (merge fj-task {:data data2})
-          f-res1 (forkTask (task (priv-fj-run fj-task1)))
-          res2 (runTask (task (priv-fj-run fj-task2)))
+          f-res1 (forkTask (task (priv-run-fj-task fj-task1)))
+          res2 (runTask (task (priv-run-fj-task fj-task2)))
           ]
         (merge-f (joinTask f-res1) res2))
         (process-f data))))
 
-(defn fj-run
+(defn run-fj-task
   "Run `fj-task` in a given `fj-pool`."
   [ fj-pool fj-task ]
   (assert (contains? fj-task :size-threshold))
@@ -93,9 +93,9 @@
   (assert (contains? fj-task :process-f))
   (assert (contains? fj-task :merge-f))
   (assert (contains? fj-task :data))
-  (invoke fj-pool (task (priv-fj-run fj-task))))
+  (invoke fj-pool (task (priv-run-fj-task fj-task))))
 
-(defn- priv-fj-run!
+(defn- priv-run-fj-task!
   [ fj-task ]
   (let [
         {:keys [ size-threshold size-f
@@ -106,14 +106,14 @@
           [data1 data2] (split-f data)
           fj-task1 (merge fj-task {:data data1})
           fj-task2 (merge fj-task {:data data2})
-          f-res1 (forkTask (task (priv-fj-run! fj-task1)))
-          res2 (runTask (task (priv-fj-run! fj-task2)))
+          f-res1 (forkTask (task (priv-run-fj-task! fj-task1)))
+          res2 (runTask (task (priv-run-fj-task! fj-task2)))
           ]
         (joinTask f-res1)
         nil)
       (do (process-f data) nil))))
 
-(defn fj-run!
+(defn run-fj-task!
   "Run `fj-task` in a given `fj-pool` for side-effects only.
 
    `fj-task` must not contain `merge-f` field.
@@ -130,9 +130,9 @@
   (assert (contains? fj-task :data))
   (assert (not (contains? fj-task :merge-f)))
 
-  (invoke fj-pool (task (priv-fj-run! fj-task))))
+  (invoke fj-pool (task (priv-run-fj-task! fj-task))))
 
-(defn- priv-fj-run-serial
+(defn- priv-run-fj-task-serial
   [ fj-task ]
   (let [
          {:keys [ size-threshold size-f
@@ -143,13 +143,13 @@
                [data1 data2] (split-f data)
                fj-task1 (merge fj-task {:data data1})
                fj-task2 (merge fj-task {:data data2})
-               res1 (priv-fj-run-serial fj-task1)
-               res2 (priv-fj-run-serial fj-task2)
+               res1 (priv-run-fj-task-serial fj-task1)
+               res2 (priv-run-fj-task-serial fj-task2)
               ]
            (merge-f res1 res2))
          (process-f data))))
 
-(defn fj-run-serial
+(defn run-fj-task-serial
   [ fj-task ]
   (assert (contains? fj-task :size-threshold))
   (assert (contains? fj-task :size-f))
@@ -157,9 +157,9 @@
   (assert (contains? fj-task :process-f))
   (assert (contains? fj-task :merge-f))
   (assert (contains? fj-task :data))
-  (priv-fj-run-serial fj-task))
+  (priv-run-fj-task-serial fj-task))
 
-(defn- priv-fj-run-serial!
+(defn- priv-run-fj-task-serial!
   [ fj-task ]
   (let [
         {:keys [ size-threshold size-f
@@ -170,15 +170,15 @@
               [data1 data2] (split-f data)
               fj-task1 (merge fj-task {:data data1})
               fj-task2 (merge fj-task {:data data2})
-              res1 (priv-fj-run-serial! fj-task1)
-              res2 (priv-fj-run-serial! fj-task2)
+              res1 (priv-run-fj-task-serial! fj-task1)
+              res2 (priv-run-fj-task-serial! fj-task2)
              ]
           nil)
         (do
           (process-f data)
           nil))))
 
-(defn fj-run-serial!
+(defn run-fj-task-serial!
   "Runs `fj-task` for side effects only. Returns nil."
   [ fj-task ]
   (assert (contains? fj-task :size-threshold))
@@ -186,4 +186,4 @@
   (assert (contains? fj-task :split-f))
   (assert (contains? fj-task :process-f))
   (assert (contains? fj-task :data))
-  (priv-fj-run-serial! fj-task))
+  (priv-run-fj-task-serial! fj-task))

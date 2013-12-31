@@ -9,7 +9,7 @@
         fj-task (make-fj-task
                   :size-threshold 5
                   :size-f count
-                  :split-f split-vector-halves
+                  :split-f split-vec-halves
                   :process-f  #(reduce + %)
                   :merge-f #(+ %1 %2)
                   :data (into [] (range 1 100001)))
@@ -23,6 +23,7 @@
   (let [
         fj-pool (make-fj-pool)
         fj-task (make-fj-task-vec
+                  :size-threshold 100
                   :process-f  #(reduce + %)
                   :merge-f #(+ %1 %2)
                   :data (into [] (range 1 100001)))
@@ -36,7 +37,8 @@
   (let [
         fj-pool (make-fj-pool)
         fj-task (make-fj-task-map-reduce-vec
-                 :map-f  identity
+                  :map-f  identity
+                  :size-threshold 10
                   :reduce-f #(+ %1 %2)
                   :data (into [] (range 1 100001)))
         ]
@@ -52,7 +54,7 @@
           fj-task (make-fj-task
                    :size-threshold 5
                    :size-f count
-                   :split-f split-vector-halves
+                   :split-f split-vec-halves
                    :process-f
                      #(swap! counter
                            +  (reduce + %))

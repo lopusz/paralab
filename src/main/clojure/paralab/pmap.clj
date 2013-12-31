@@ -1,4 +1,4 @@
-(ns paralab.pmap-n
+(ns paralab.pmap
   "Module contains various versions of pmap operation.
 
    This is *HIGHLY EXPERIMENTAL*.

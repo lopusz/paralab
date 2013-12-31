@@ -1,5 +1,5 @@
 ;   Copyright (c) Rich Hickey. All rights reserved.  Modified by lopusz.
- 
+
 ;   The use and distribution terms for this software are covered by the
 ;   Eclipse Public License 1.0 (http://opensource.org/licenses/eclipse-1.0.php)
 ;   which can be found in the file epl-v10.html at the root of this distribution.
@@ -8,9 +8,12 @@
 ;   You must not remove this notice, or any other, from this software.
 
 (ns  paralab.fj-reducers
-  "Reducers library modified in a way so fold accepts a custom fjpool.
-   Based on the code of Rich Hickey."
-  (:refer-clojure :exclude 
+  "Reducers library modified in a way that fold accepts custom fj-pool.
+   Based on the code of Rich Hickey.
+
+   This is *HIGHLY EXPERIMENTAL*.
+  "
+  (:refer-clojure :exclude
         [reduce map mapcat filter remove take take-while drop flatten])
   (:require [clojure.walk :as walk])
   (:require [paralab.fj-core :refer :all])
@@ -43,18 +46,18 @@
    (defn fjtask [^Callable f]
      (java.util.concurrent.ForkJoinTask/adapt f))
 
-   (defn- fjinvoke 
+   (defn- fjinvoke
      ([f]
         (if (java.util.concurrent.ForkJoinTask/inForkJoinPool)
           (f)
-          (.invoke 
-            ^java.util.concurrent.ForkJoinPool @pool 
+          (.invoke
+            ^java.util.concurrent.ForkJoinPool @pool
             ^java.util.concurrent.ForkJoinTask (fjtask f))))
      ([fjpool f]
         (if (java.util.concurrent.ForkJoinTask/inForkJoinPool)
           (f)
-          (.invoke 
-           ^java.util.concurrent.ForkJoinPool fjpool 
+          (.invoke
+           ^java.util.concurrent.ForkJoinPool fjpool
            ^java.util.concurrent.ForkJoinTask (fjtask f)))))
 
 
@@ -64,22 +67,22 @@
  ;; We're running a JDK <7
  (do
    (def pool (delay (jsr166y.ForkJoinPool.)))
- 
+
    (defn fjtask [^Callable f]
      (jsr166y.ForkJoinTask/adapt f))
 
-   (defn- fjinvoke 
+   (defn- fjinvoke
      ([f]
       (if (jsr166y.ForkJoinTask/inForkJoinPool)
        (f)
-       (.invoke 
-         ^jsr166y.ForkJoinPool @pool 
+       (.invoke
+         ^jsr166y.ForkJoinPool @pool
          ^jsr166y.ForkJoinTask (fjtask f))))
      ([fjpool f]
       (if (jsr166y.ForkJoinTask/inForkJoinPool)
        (f)
-       (.invoke 
-         ^jsr166y.ForkJoinPool fjpool 
+       (.invoke
+         ^jsr166y.ForkJoinPool fjpool
          ^jsr166y.ForkJoinTask (fjtask f)))))
 
    (defn- fjfork [task] (.fork ^jsr166y.ForkJoinTask task))
@@ -128,9 +131,9 @@
   operations may be performed in parallel, but the results will
   preserve order."
   {:added "1.5"}
-  ([ ^FJPool fjpool reducef coll ] 
+  ([ ^FJPool fjpool reducef coll ]
      (fold-p fjpool reducef reducef coll))
-  ([ ^FJPool fjpool combinef reducef coll] 
+  ([ ^FJPool fjpool combinef reducef coll]
      (fold-p fjpool 512 combinef reducef coll))
   ([ ^FJPool fjpool n combinef reducef coll]
      (coll-fold-p coll (.getRawFJPool fjpool) n combinef reducef)))
@@ -337,7 +340,7 @@
          v2 (subvec v split (count v))
          fc (fn [child] #(foldvec child n combinef reducef))]
      (fjinvoke
-       fjpool 
+       fjpool
        #(let [f1 (fc v1)
               t2 (fjtask (fc v2))]
           (fjfork t2)
@@ -378,7 +381,7 @@
     [m fjpool n combinef reducef]
     (.fold m n combinef reducef #(fjinvoke fjpool %) fjtask fjfork fjjoin)))
 
-(defn fold-into-vec-p 
+(defn fold-into-vec-p
   "Provided a reducer, concatenate into a vector.
    Note: same as (into [] coll), but parallel.
    Adopted from excellent blog post of The Busby

@@ -1,6 +1,6 @@
 (ns paralab.fj-core
 
-   "Module contains core interface to Java ForkJoin library. 
+   "Module contains core interface to Java ForkJoin library.
 
     On the basis of gist from swannodette: https://gist.github.com/888733")
 

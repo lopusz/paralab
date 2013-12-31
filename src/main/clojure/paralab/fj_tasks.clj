@@ -1,8 +1,6 @@
 (ns paralab.fj-tasks
-  " Simple Clojure interface to ForkJoin task pool.
+  "Module contains simple Clojure abstraction around ForkJoin library."
 
-    On the basis of gist from swannodette:
-    https://gist.github.com/888733"
   (:refer-clojure :exclude [assert])
   (:require
     [pjstadig.assertions :refer [assert]]
@@ -12,13 +10,25 @@
 
 ;; Java 1.6 vs. Java 1.7 compatibility trick from Reducers library
 
-(defn split-vector-halves [ v ]
+(defn split-vector-halves
+  "Splits vector `v` into two halves."
+  [ v ]
   (let [
        half (quot (count v) 2)
        ]
     [ (subvec v 0 half) (subvec v half) ]))
 
 (defn make-fj-task
+  "Creates `fj-task` on the basis of keyword arguments:
+   `:data` - data to be processed,
+   `:size-f` - function returning size of data chunk,
+   `:split-f` - function spliting data chunk
+   `:process-f` - function processing chunk of data
+   `:size-threshold` - maximum size of chunk processed by `process-f`
+   `:merge-f` - function merginng results of `process-f` ran on two chunks
+
+  `:merge-f` is optional. If you wish only to run for sideeffects
+   using run-fj-task! it should not be provided."
   [ & { :keys [size-threshold size-f split-f process-f data]
        :as fj-task}]
   (assert (contains? fj-task :size-threshold))
@@ -29,10 +39,19 @@
   fj-task)
 
 (defn make-fj-task-vec
-  [ & {:keys [size-threshold process-f merge-f data]
-       :or { size-threshold 2 } } ]
+  "Creates `fj-task` with vector data on the basis of keyword arguments:
+   `:data` - data to be processed of type `PersistentVector`,
+   `:process-f` - function processing chunk of data
+   `:size-threshold` - maximum size of chunk processed by `process-f`
+   `:merge-f` - function merginng results of `process-f` ran on two chunks
+
+  `:merge-f` is optional. If you wish only to run for sideeffects
+   using run-fj-task! it should not be provided."
+
+  [ & {:keys [size-threshold process-f merge-f data] } ]
 
   (assert (not= process-f nil))
+  (assert (not= size-threshold nil))
   (assert (not= data nil))
   (assert (= (class data) clojure.lang.PersistentVector))
 
@@ -50,9 +69,24 @@
                    :data data)))
 
 (defn make-fj-task-map-reduce-vec
-  [ & { :keys [ map-f reduce-f data size-threshold ]
-      :or { size-threshold 2 } } ]
+  "Creates `fj-task` executing in parallel map-reduce style computation
+   on data vector, which is equivallent to:
 
+   `(reduce reduce-f (map map-f data))`
+   Assumes that reduce-f is associative.
+
+   Uses the following keyword argumetns:
+   `:data` - data to be processed of type `PersistentVector`,
+   `:map-f` - function processing chunk of data,
+   `:reduce-f` - function reducing the data,
+   `:size-threshold` - maximum size of chunk processed in a serial manner.
+
+   Obviously this task should be processed by `run-fj-task` functions
+   *without* exclamation mark."
+
+  [ & { :keys [ map-f reduce-f data size-threshold ] } ]
+
+  (assert (not= size-threshold nil))
   (assert (not= map-f nil))
   (assert (not= reduce-f nil))
   (assert (not= data nil))
@@ -85,7 +119,7 @@
         (process-f data))))
 
 (defn run-fj-task
-  "Run `fj-task` in a given `fj-pool`."
+  "Runs `fj-task` in a given `fj-pool`."
   [ fj-pool fj-task ]
   (assert (contains? fj-task :size-threshold))
   (assert (contains? fj-task :size-f))
@@ -114,11 +148,11 @@
       (do (process-f data) nil))))
 
 (defn run-fj-task!
-  "Run `fj-task` in a given `fj-pool` for side-effects only.
+  "Runs `fj-task` in a given `fj-pool` for side-effects only.
 
    `fj-task` must not contain `merge-f` field.
    Any results returned by `process-f` are discarded, preferably it should
-   return  `nil`. Too much blocking I/O is can result in suboptimal
+   return  `nil`. Too much blocking I/O in `process-f` can result in suboptimal
    performance, since Fork/Join is designed to CPU intensive tasks."
 
   [ fj-pool fj-task ]
@@ -150,6 +184,7 @@
          (process-f data))))
 
 (defn run-fj-task-serial
+  "Runs `fj-task` in a serial mode. ForkJoin framework is not used."
   [ fj-task ]
   (assert (contains? fj-task :size-threshold))
   (assert (contains? fj-task :size-f))
@@ -179,7 +214,9 @@
           nil))))
 
 (defn run-fj-task-serial!
-  "Runs `fj-task` for side effects only. Returns nil."
+  "Runs `fj-task` in a serial mode for side effects only.
+   ForkJoin framework is not used.
+  "
   [ fj-task ]
   (assert (contains? fj-task :size-threshold))
   (assert (contains? fj-task :size-f))

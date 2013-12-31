@@ -1,5 +1,5 @@
 (ns paralab.core
-  "Module the most general functionality for parallelism.")
+  "Module contains general purpose functions for parallelism.")
 
 (defn get-n-cpus 
   "Returns the number of available processors."

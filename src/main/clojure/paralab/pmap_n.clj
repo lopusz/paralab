@@ -1,9 +1,13 @@
 (ns paralab.pmap-n
+  "Module contains various versions of pmap operation.
+
+   This is *HIGHLY EXPERIMENTAL*.
+  "
   (:require [clojure.math.numeric-tower :refer [ceil]]))
 
 (defn pmap-n
-  "Runs pmap spawning n futures.
-   
+  "Runs pmap spawning exactly `n` futures.
+
    Original pmap is recovered by pmap with n = available processors + 2.
   "
 
@@ -25,7 +29,9 @@
      (pmap-n n  #(apply f %) (step (cons coll colls))))))
 
 
-(defn ppmap-n [ n f coll ]
+(defn ppmap-n
+  "Runs `clojure.core.pmap` on `coll` split into n pieces."
+  [ n f coll ]
   (let [
         coll-size (count coll)
         partition-size (int (ceil (/ coll-size n)))
@@ -35,7 +41,7 @@
        ]
     (apply concat res-partitions)))
 
-;; These are routines contributed by Andy Fingerhut to The Computer Language 
+;; These are routines contributed by Andy Fingerhut to The Computer Language
 ;; Benchmarks Game, see
 ;; http://benchmarksgame.alioth.debian.org/u32/program.php?test=knucleotide&lang=clojure&id=2
 
@@ -45,12 +51,15 @@
 ;; can use unwanted additional parallelism for chunked collections,
 ;; like ranges.
 
-(defn- af-lazy-map [f coll]
+(defn- af-lazy-map
+  [f coll]
   (lazy-seq
     (when-let [s (seq coll)]
       (cons (f (first s)) (af-lazy-map f (rest s))))))
 
 (defn af-pmap-n
+  "`pmap` version by Andy Fingerhut written for The Computer Language
+   Benchmarks Game. It avoids additional parallelism for chunked collections."
   ([num-threads f coll]
      (if (== num-threads 1)
        (map f coll)

@@ -1,6 +1,5 @@
 (ns paralab.fj-tasks
   "Module contains simple Clojure abstraction around ForkJoin library."
-
   (:refer-clojure :exclude [assert])
   (:require
     [pjstadig.assertions :refer [assert]]

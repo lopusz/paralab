@@ -82,3 +82,25 @@
      (FJPool. (ForkJoinPool.)))
   ([n-cpus]
      (FJPool. (ForkJoinPool. n-cpus))))
+
+; Disable Codox API docs for some vars
+
+(alter-meta! #'->FJTask assoc :no-doc true)
+(alter-meta! #'IFJTask assoc :no-doc true)
+(alter-meta! #'forkTask assoc :no-doc true)
+(alter-meta! #'joinTask assoc :no-doc true)
+(alter-meta! #'runTask assoc :no-doc true)
+(alter-meta! #'compute assoc :no-doc true)
+
+(alter-meta! #'->FJPool assoc :no-doc true)
+(alter-meta! #'IFJPool assoc :no-doc true)
+(alter-meta! #'shutdown assoc :no-doc true)
+(alter-meta! #'submit assoc :no-doc true)
+(alter-meta! #'invoke assoc :no-doc true)
+(alter-meta! #'execute assoc :no-doc true)
+(alter-meta! #'getRawFJPool assoc :no-doc true)
+
+(alter-meta! #'task assoc :no-doc true)
+(alter-meta! #'task* assoc :no-doc true)
+(alter-meta! #'paralab.fj_core.proxy$java.util.concurrent.RecursiveTask$0
+  assoc :no-doc true)

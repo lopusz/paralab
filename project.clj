@@ -3,10 +3,10 @@
   ; GENERAL OPTIONS
 
   :description "paralab library"
-  :url ""
+  :url "http://github.com/lopusz/paralab"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :aot :all 
+  :aot :all
   :omit-source true
   
   ;; options used by Java
@@ -37,10 +37,9 @@
 
   :codox {
           :output-dir "target/apidoc"
-          :codox {:exclude paralab.fj-reducers}
+          :exclude paralab.fj-reducers
           :sources [ "src/main/clojure"]
-          ;; TODO Uncoment below before push to github
-          ;; :src-dir-uri "http://github.com/lopusz/paralab/blob/master/"
-          ;; :src-linenum-anchor-prefix "L"
+          :src-dir-uri "http://github.com/lopusz/paralab/blob/master/"
+          :src-linenum-anchor-prefix "L"
           }  
 )

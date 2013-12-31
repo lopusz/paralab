@@ -1,8 +1,7 @@
 (ns paralab.pmap
   "Module contains various versions of pmap operation.
 
-   This is *HIGHLY EXPERIMENTAL*.
-  "
+   This is *HIGHLY EXPERIMENTAL*."
   (:require [clojure.math.numeric-tower :refer [ceil]]))
 
 (defn pmap-n

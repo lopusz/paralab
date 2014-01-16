@@ -1,4 +1,6 @@
 * paralab
+
+  [[http://travis-ci.org/lopusz/paralab][https://api.travis-ci.org/lopusz/paralab.png?branch=master]] 
   
   Toolbox for painless parallelism in Clojure.
 

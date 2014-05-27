@@ -102,5 +102,5 @@
 
 (alter-meta! #'task assoc :no-doc true)
 (alter-meta! #'task* assoc :no-doc true)
-(alter-meta! #'paralab.fj_core.proxy$java.util.concurrent.RecursiveTask$0
-  assoc :no-doc true)
+;(alter-meta! #'paralab.fj_core.proxy$java.util.concurrent.RecursiveTask$0
+;  assoc :no-doc true)

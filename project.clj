@@ -1,4 +1,4 @@
-(defproject paralab "0.1.0-SNAPSHOT"
+(defproject paralab "0.1.0"
 
   ; GENERAL OPTIONS
 
@@ -9,18 +9,22 @@
   :aot :all
   :omit-source true
   
+
   ;; options used by Java
   ;;; run with assertions enabled
   :jvm-opts ["-ea"]
   ;;; hints on java code, sometimes maybe useful  
   ;;; :javac-options [ "-Xlint"]
-
+  
+  ;; enable reflection warnings
+  ;;;:global-vars {*warn-on-reflection* true} 
+  
   ; DEPENDENCIES
 
   :dependencies [   
-    [org.clojure/clojure "1.5.1"]
+    [org.clojure/clojure "1.6.0"]
     [pjstadig/assertions "0.1.0"]
-    [org.clojure/math.numeric-tower "0.0.2"]
+    [org.clojure/math.numeric-tower "0.0.4"]
     ]
 
   ; SOURCE DIRECTORY RECONFIGURATION
@@ -31,7 +35,10 @@
   
   ; PLUGINS + CONFIGURATION
 
-  :plugins [ [codox "0.6.6"] ]
+  :plugins [ 
+             [codox "0.8.7"] 
+             [lein-ancient "0.5.5"]
+            ]
 
   ;; codox configuration   
 
@@ -39,7 +46,7 @@
           :output-dir "target/apidoc"
           :exclude paralab.fj-reducers
           :sources [ "src/main/clojure"]
+          :defaults {:doc/format :markdown}
           :src-dir-uri "http://github.com/lopusz/paralab/blob/master/"
           :src-linenum-anchor-prefix "L"
-          }  
-)
+          }  )

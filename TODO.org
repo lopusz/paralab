@@ -1,4 +1,5 @@
 * Issues
+  + *[general]* add schema for types + refactor function names
   + *[general]* check if the compile-if trick really makes it work with J1.6
   + *[fj_reducers]* test its usability
   + *[fj_reducers]* if reducers are usable, clean thoroughly the code

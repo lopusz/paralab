@@ -1,4 +1,4 @@
-(defproject paralab "0.2.0-SNAPSHOT
+(defproject paralab "0.2.0-SNAPSHOT"
 
   ; GENERAL OPTIONS
 

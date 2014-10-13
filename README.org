@@ -8,7 +8,7 @@
 
   API docs are available [[http://lopusz.github.io/paralab][here]].
 
-  To use paralab, add the the following section to your ~project.clj~
+  To use paralab, add the the following dependency to your ~project.clj~
 
   [[http://clojars.org/paralab][http://clojars.org/paralab/latest-version.svg]]
 

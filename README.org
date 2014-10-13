@@ -1,13 +1,19 @@
 * paralab
 
-  [[http://travis-ci.org/lopusz/paralab][https://api.travis-ci.org/lopusz/paralab.png?branch=master]] 
-  
+  [[http://travis-ci.org/lopusz/paralab][https://api.travis-ci.org/lopusz/paralab.png?branch=master]]
+
   Toolbox for painless parallelism in Clojure.
 
   Currently, this is work in progress. API is subject to change.
 
   API docs are available [[http://lopusz.github.io/paralab][here]].
 
+  To use paralab, add the the following section to your ~project.clj~
+
+  [[http://clojars.org/paralab][http://clojars.org/paralab/latest-version.svg]]
+
+
+  [Clojars Project](http://clojars.org/paralab/latest-version.svg)](http://clojars.org/paralab)
 * License
 
   Distributed under the Eclipse Public License, the same as Clojure.

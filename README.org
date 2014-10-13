@@ -12,8 +12,6 @@
 
   [[http://clojars.org/paralab][http://clojars.org/paralab/latest-version.svg]]
 
-
-  [Clojars Project](http://clojars.org/paralab/latest-version.svg)](http://clojars.org/paralab)
 * License
 
   Distributed under the Eclipse Public License, the same as Clojure.
